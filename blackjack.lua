@@ -29,7 +29,6 @@ function Player:new (o)
      o = o or {}   -- create object if user does not provide one
      setmetatable(o, self)
      self.__index = self
-     self.hand = {}
      self.name = ""
      self.choice = 0
      self.total = 0
@@ -68,20 +67,23 @@ function redrawTable()
   for i = 1, #user.hand do
     io.write(user.hand[i] .. " ")
   end
+  io.write("(" .. user:count_hand() .. ")")
 
   io.write("\nDealer: ")
   for i = 1, #dealer.hand do
     io.write(dealer.hand[i] .. " ")
   end
+  io.write("(" .. dealer:count_hand() .. ")")
   io.write("\n")
 end
 
--- Calculates the hand total after ever hit
+-- Calculates the hand total after every hit
 function Player:count_hand()
     local total = 0
     local softHand = false
+    local softHandCount = 0
 
-    for i in 1, #self.hand do
+    for i = 1, #self.hand do
       local value = self.hand[i]
 
       if value == 'J' or value == 'Q' or value == 'K' then
@@ -89,10 +91,15 @@ function Player:count_hand()
       elseif value == 'A' then
         value = 11
         softHand = true
+        softHandCount = softHandCount + 1
       end
       -- TODO: Still need to check for soft Aces
 
       total = total + value
+    end
+
+    if total > 21 and softHand == true then
+      total = total - (softHandCount * 10)
     end
 
     return total
@@ -109,6 +116,8 @@ end
 function game ()
   while true do
 
+    -- bet()
+
     newDeal()
 
     playerTurn()
@@ -116,6 +125,8 @@ function game ()
     -- dealerTurn()
 
     -- evaluate()
+
+    -- pay()
 
   end
 end
@@ -182,8 +193,8 @@ newDeck = {"A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K",
  "A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K",
  "A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K"}
 
-user = Player:new()
-dealer = Player:new()
+user = Player:new({hand = {}})
+dealer = Player:new({hand = {}})
 
 user.name = "Player"
 dealer.name = "Dealer"
