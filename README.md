@@ -3,15 +3,15 @@ Blackjack game in Lua to be used on OpenOS in the Minecraft Mod 'OpenComputers'
 By TuxMan20
 Forks are welcomed
 
-TODO: Complete the game loop
-TODO: Complete game actions (Split, Stay, Double...)
-TODO: Check for blackjacks at first draw (dealer and user)
-TODO: Check for game losses (Over 21)
-TODO: Ask for insurance
-TODO: Place bets
-TODO: Pay winnings
-TODO: Complete dealer (CPU) turn
-TODO: Separate the game, functions and class files.
+- TODO: Complete the game loop
+- TODO: Complete game actions (Split, Stay, Double...)
+- TODO: Check for blackjacks at first draw (dealer and user)
+- TODO: Check for game losses (Over 21)
+- TODO: Ask for insurance
+- TODO: Place bets
+- TODO: Pay winnings
+- TODO: Complete dealer (CPU) turn
+- TODO: Separate the game, functions and class files.
 
 Long term goals:
 - Storing the player's credit in an external file for persistence (Maybe implementing a crypto for security)
