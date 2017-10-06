@@ -76,8 +76,28 @@ function redrawTable()
   io.write("\n")
 end
 
+-- Calculates the hand total after ever hit
+function Player:count_hand()
+    local total = 0
+
+    for i in 1, #self.hand:
+      local value = self.hand[i]
+
+      if value == 'J' or value == 'Q' or value == 'K' then
+        value = 10
+      elseif value == 'A' then
+        value = 11
+      end
+      -- TODO: Still need to check for soft Aces
+
+      total = total + value
+    end
+
+    return total
+end
+
 -- Evaluates the player's and dealer's cards, Returns a numeric value and a winner
-function evaluate ()
+function compare()
 
 -- TODO: compares the two hands
 
