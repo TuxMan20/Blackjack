@@ -21,14 +21,7 @@ function clear()
   os.execute("clear")
 end
 
--- Defining the Player Class to give properties and methods to "user" and "dealer"
---Player = Class(function(plyr,money)
-              --plyr.money = money
-              --plyr.name = ""
-              --plyr.hand = {}
-              --plyr.choice = 0
-              --plyr.total = 0
-           --end
+
 Player = {}
 Player.__index = Player
 
