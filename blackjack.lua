@@ -79,14 +79,16 @@ end
 -- Calculates the hand total after ever hit
 function Player:count_hand()
     local total = 0
+    local softHand = false
 
-    for i in 1, #self.hand:
+    for i in 1, #self.hand do
       local value = self.hand[i]
 
       if value == 'J' or value == 'Q' or value == 'K' then
         value = 10
       elseif value == 'A' then
         value = 11
+        softHand = true
       end
       -- TODO: Still need to check for soft Aces
 
