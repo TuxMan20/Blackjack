@@ -1,7 +1,7 @@
 -- Setting the randomness seed
 math.randomseed(os.time())
 
--- Include helpers file
+-- TODO: Include helpers file
 -- require("helpers.lua")
 
 -- Let the program stops temporarily to create basic animation
@@ -11,17 +11,17 @@ function sleep (a)
   end
 end
 
--- Function to copy Tables
+-- Function to copy Tables (keeping a table of a new deck)
 function table.clone(org)
   return {table.unpack(org)}
 end
 
--- Clears the Terminal screen
+-- Clears the Terminal screen (When redrawing the play area)
 function clear()
   os.execute("clear")
 end
 
-
+-- Initializing the Player class for user and dealer
 Player = {}
 Player.__index = Player
 
@@ -60,7 +60,7 @@ function draw(deck)
     return cardDrew
 end
 
--- Draws the cards on the table
+-- Draws/Updates the play area on the table
 function redrawTable()
   clear()
 
@@ -129,7 +129,6 @@ function playerTurn()
       until tonumber(user.choice) > 0 and tonumber(user.choice) <= 5
 
       if user.choice == "1" then
-        -- TODO: Hit()
         user:hit(drawFrom)
         redrawTable()
 
@@ -194,9 +193,7 @@ until tonumber(user.choice) > 0 and tonumber(user.choice) <= 3
 
 if user.choice == "1" then
   game()
-for i = 1, #user do
-  io.write(user[i] .. " ")
-end
+
 
 elseif user.choice == "2" then
   -- TODO: addCredit()
