@@ -35,15 +35,6 @@ function Player:new (o)
      return o
 end
 
-function Player:bet()
-  repeat
-    io.write("You have " .. self.money .. "\n" .. "How much do you want to bet: ")
-    self.bet = io.read()
-  until self.bet > 0 and self.bet <= self.money
-
-  self.money = self.money - self.bet
-end
-
 function Player:set_name(name)
   self.name = name
 end
@@ -127,11 +118,20 @@ function compare()
 
 end
 
+function bet()
+  repeat
+    io.write("You have " .. user.money .. "\n" .. "How much do you want to bet: ")
+    user.bet = io.read("*n")
+  until user.bet > 0 and user.bet <= user.money
+
+  user.money = user.money - user.bet
+end
+
 -- main loop of the game
 function game ()
   while true do
 
-    -- user:bet()
+    bet()
 
     newDeal()
 
@@ -176,8 +176,8 @@ function playerTurn()
 
       repeat
         io.write("Command: ")
-        user.choice = io.read()
-      until tonumber(user.choice) > 0 and tonumber(user.choice) <= 5
+        user.choice = io.read("*n")
+      until user.choice > 0 and user.choice <= 5
 
       if user.choice == "1" then
         user:hit(drawFrom)
@@ -210,7 +210,7 @@ end
 
 -- Stores the player's credit score
 -- TODO: store in external file for persistence
-c = 1000
+
 borrow = 0
 
 newDeck = {"A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K",
@@ -224,6 +224,8 @@ dealer = Player:new({hand = {}})
 user.name = "Player"
 dealer.name = "Dealer"
 
+user.money = 1000
+
 -- Start of main program, and displays main menu
 clear()
 
@@ -235,7 +237,7 @@ io.write("\n" .. [[By TuxMan20]] .. "\n\n")
 
 sleep(1)
 
-io.write("Current credit: " .. c .. "\n\n")
+io.write("Current credit: " .. user.money .. "\n\n")
 
 sleep(1)
 
