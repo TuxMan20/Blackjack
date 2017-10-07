@@ -27,7 +27,10 @@ function Player:new (o)
      o = o or {}   -- create object if user does not provide one
      setmetatable(o, self)
      self.__index = self
+<<<<<<< HEAD
      -- self.hand = {}
+=======
+>>>>>>> f511a16b951a5151dd65c291a130999ad70f5595
      self.name = ""
      self.choice = 0
      self.total = 0
@@ -66,16 +69,46 @@ function redrawTable()
   for i = 1, #user.hand do
     io.write(user.hand[i] .. " ")
   end
+  io.write("(" .. user:count_hand() .. ")")
 
   io.write("\nDealer: ")
   for i = 1, #dealer.hand do
     io.write(dealer.hand[i] .. " ")
   end
+  io.write("(" .. dealer:count_hand() .. ")")
   io.write("\n")
 end
 
+-- Calculates the hand total after every hit
+function Player:count_hand()
+    local total = 0
+    local softHand = false
+    local softHandCount = 0
+
+    for i = 1, #self.hand do
+      local value = self.hand[i]
+
+      if value == 'J' or value == 'Q' or value == 'K' then
+        value = 10
+      elseif value == 'A' then
+        value = 11
+        softHand = true
+        softHandCount = softHandCount + 1
+      end
+      -- TODO: Still need to check for soft Aces
+
+      total = total + value
+    end
+
+    if total > 21 and softHand == true then
+      total = total - (softHandCount * 10)
+    end
+
+    return total
+end
+
 -- Evaluates the player's and dealer's cards, Returns a numeric value and a winner
-function evaluate ()
+function compare()
 
 -- TODO: compares the two hands
 
