@@ -131,7 +131,7 @@ end
 function game ()
   while true do
 
-    user:bet()
+    -- user:bet()
 
     newDeal()
 
