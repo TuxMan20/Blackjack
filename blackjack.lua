@@ -27,15 +27,21 @@ function Player:new (o)
      o = o or {}   -- create object if user does not provide one
      setmetatable(o, self)
      self.__index = self
-<<<<<<< HEAD
-     -- self.hand = {}
-=======
->>>>>>> f511a16b951a5151dd65c291a130999ad70f5595
      self.name = ""
      self.choice = 0
      self.total = 0
      self.money = 0
+     self.bet = 0
      return o
+end
+
+function Player:bet()
+  repeat
+    io.write("You have " .. self.money .. "\n" .. "How much do you want to bet: ")
+    self.bet = io.read()
+  until self.bet > 0 and self.bet <= self.money
+
+  self.money = self.money - self.bet
 end
 
 function Player:set_name(name)
@@ -48,6 +54,13 @@ end
 
 function Player:win(amount)
   self.money = self.money + amount
+end
+
+-- Empties the hand and gets ready for a new deal
+function Player:empty_hand()
+ for i in pairs (self.hand) do
+   self.hand[i] = nil
+ end
 end
 
 -- Draws a random card from the deck "drawFrom" and removes the
@@ -76,7 +89,8 @@ function redrawTable()
     io.write(dealer.hand[i] .. " ")
   end
   io.write("(" .. dealer:count_hand() .. ")")
-  io.write("\n")
+  io.write("\n\n")
+  io.write("Your bet:" .. user.bet .. "\n")
 end
 
 -- Calculates the hand total after every hit
@@ -95,7 +109,6 @@ function Player:count_hand()
         softHand = true
         softHandCount = softHandCount + 1
       end
-      -- TODO: Still need to check for soft Aces
 
       total = total + value
     end
@@ -118,7 +131,7 @@ end
 function game ()
   while true do
 
-    -- bet()
+    user:bet()
 
     newDeal()
 
@@ -137,6 +150,8 @@ end
 -- TODO: Check for Blackjack and insurance
 function newDeal()
 -- Clears the screen and instantiate a new deck to draw from
+  user:empty_hand()
+  dealer:empty_hand()
 
   drawFrom = table.clone(newDeck)
 
@@ -151,6 +166,7 @@ function newDeal()
 -- Start of the Player's turn
 function playerTurn()
   while true do
+
     io.write([[What will you do?
       (1) Hit
       (2) Stay
@@ -166,6 +182,13 @@ function playerTurn()
       if user.choice == "1" then
         user:hit(drawFrom)
         redrawTable()
+
+        if user:count_hand() > 21 then
+          io.write("You went over 21. Try again.\n")
+          clear()
+          sleep(5)
+          break
+        end
 
       elseif user.choice == "2" then
         -- TODO: Stay()
@@ -228,8 +251,6 @@ until tonumber(user.choice) > 0 and tonumber(user.choice) <= 3
 
 if user.choice == "1" then
   game()
-
-
 elseif user.choice == "2" then
   -- TODO: addCredit()
   io.write("Choice 2\n")
