@@ -1,8 +1,3 @@
--- Setting the randomness seed
-math.randomseed(os.time())
-
--- TODO: Include helpers file
--- require("helpers.lua")
 
 -- Let the program stops temporarily to create basic animation
 function sleep (a)
@@ -10,6 +5,9 @@ function sleep (a)
   while (os.clock() < sec) do
   end
 end
+
+-- Setting the randomness seed
+math.randomseed(os.time())
 
 -- Function to copy Tables (keeping a table of a new deck)
 function table.clone(org)
@@ -29,7 +27,7 @@ function Player:new (o)
      o = o or {}   -- create object if user does not provide one
      setmetatable(o, self)
      self.__index = self
-     self.hand = {}
+     -- self.hand = {}
      self.name = ""
      self.choice = 0
      self.total = 0
@@ -87,6 +85,8 @@ end
 function game ()
   while true do
 
+    -- bet()
+
     newDeal()
 
     playerTurn()
@@ -94,6 +94,8 @@ function game ()
     -- dealerTurn()
 
     -- evaluate()
+
+    -- pay()
 
   end
 end
@@ -160,8 +162,8 @@ newDeck = {"A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K",
  "A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K",
  "A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K"}
 
-user = Player:new()
-dealer = Player:new()
+user = Player:new({hand = {}})
+dealer = Player:new({hand = {}})
 
 user.name = "Player"
 dealer.name = "Dealer"
