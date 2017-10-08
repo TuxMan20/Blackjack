@@ -118,14 +118,6 @@ function compare()
 
 end
 
-function bet()
-  repeat
-    io.write("You have " .. user.money .. "\n" .. "How much do you want to bet: ")
-    user.bet = io.read("*n")
-  until user.bet > 0 and user.bet <= user.money
-
-  user.money = user.money - user.bet
-end
 
 -- main loop of the game
 function game ()
@@ -146,6 +138,18 @@ function game ()
   end
 end
 
+-- Asks the user to place a bet
+-- TODO: Limit to integers, and prevent alphabetic entries (Causes an infinite loop)
+function bet()
+  repeat
+    io.write("You have " .. user.money .. "\n" .. "How much do you want to bet: ")
+    user.bet = io.read("*n")
+  until user.bet > 0 and user.bet <= user.money
+
+  user.money = user.money - user.bet
+end
+
+
 -- Deals the first two cards to dealer and player
 -- TODO: Check for Blackjack and insurance
 function newDeal()
@@ -161,7 +165,7 @@ function newDeal()
   dealer:hit(drawFrom)
 
   redrawTable()
-
+end
 
 -- Start of the Player's turn
 function playerTurn()
@@ -175,34 +179,35 @@ function playerTurn()
       (5) Quit]] .. "\n")
 
       repeat
+        user.choice = 0
         io.write("Command: ")
-        user.choice = io.read("*n")
-      until user.choice > 0 and user.choice <= 5
+        user.choice = io.read("*numbers")
+      until user.choice > 0 and user.choice <= 5 and user.choice ~= nil
 
-      if user.choice == "1" then
+      if user.choice == 1 then
         user:hit(drawFrom)
         redrawTable()
 
+
         if user:count_hand() > 21 then
           io.write("You went over 21. Try again.\n")
-          clear()
           sleep(5)
+          clear()
           break
         end
 
-      elseif user.choice == "2" then
+      elseif user.choice == 2 then
         -- TODO: Stay()
         os.exit()
-      elseif user.choice == "3" then
+      elseif user.choice == 3 then
         -- TODO: Split()
         os.exit()
-      elseif user.choice == "4" then
+      elseif user.choice == 4 then
         -- TODO: Double()
         os.exit()
-      elseif user.choice == "5" then
+      elseif user.choice == 5 then
         os.exit()
-      end
-    end
+      end --End the choices "if"s
   end
 end
 
@@ -248,14 +253,14 @@ io.write("\n" .. [[Please choose an option:
 
 repeat
   io.write("Command: ")
-  user.choice = io.read()
-until tonumber(user.choice) > 0 and tonumber(user.choice) <= 3
+  user.choice = io.read("*numbers")
+until user.choice > 0 and user.choice <= 3
 
-if user.choice == "1" then
+if user.choice == 1 then
   game()
-elseif user.choice == "2" then
+elseif user.choice == 2 then
   -- TODO: addCredit()
   io.write("Choice 2\n")
-elseif user.choice == "3" then
+elseif user.choice == 3 then
   os.exit()
 end
