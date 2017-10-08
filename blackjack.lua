@@ -77,8 +77,13 @@ function redrawTable()
   io.write("(" .. user:count_hand() .. ")")
 
   io.write("\nDealer: ")
-  for i = 1, #dealer.hand do
-    io.write(dealer.hand[i] .. " ")
+
+  if showDealerCards == false then
+    io.write(dealer.hand[1] .. " ")
+  else
+    for i = 1, #dealer.hand do
+      io.write(dealer.hand[i] .. " ")
+    end
   end
   io.write("(" .. dealer:count_hand() .. ")")
   io.write("\n\n")
@@ -156,7 +161,8 @@ end
 -- TODO: Check for Blackjack and insurance
 function newDeal()
 -- Clears the screen and instantiate a new deck to draw from
-  skipDealerTurn = 0
+  skipDealerTurn = false
+  showDealerCards = false
   user:empty_hand()
   dealer:empty_hand()
 
@@ -165,7 +171,9 @@ function newDeal()
   for i = 1, 2 do
     user:hit(drawFrom)
   end
-  dealer:hit(drawFrom)
+  for i = 1, 2 do
+    dealer:hit(drawFrom)
+  end
 
   redrawTable()
 end
@@ -174,9 +182,17 @@ end
 function playerTurn()
   while true do
 
+    if dealer:count_hand() == 21 then
+      showDealerCards = true
+      skipDealerTurn = true
+      redrawTable()
+      io.write("Dealer has a Blackjack! Better luck next time...")
+      break
+    end
+
     if user:count_hand() == 21 and #user.hand == 2 then
       io.write("BLACKJACK!! Your turn is done and you WIN!\n")
-      skipDealerTurn = 1
+      skipDealerTurn = true
       user:win(2.5)
       sleep(5)
       break
@@ -206,7 +222,7 @@ function playerTurn()
 
         if user:count_hand() > 21 then
           io.write("\nYou went over 21. Try again.\n")
-          skipDealerTurn = 1
+          skipDealerTurn = true
           sleep(5)
           clear()
           break
@@ -231,8 +247,10 @@ function playerTurn()
           user:hit(drawFrom)
 
           if user:count_hand() > 21 then
+            redrawTable()
             io.write("\nYou went over 21. Try again.\n")
-            skipDealerTurn = 1
+            showDealerCards = true
+            skipDealerTurn = true
             sleep(5)
             clear()
             break
@@ -260,9 +278,9 @@ function playerTurn()
 end
 
 function dealerTurn()
-
+showDealerCards = true
   while dealer:count_hand() < 17 do
-    if skipDealerTurn == 1 then
+    if skipDealerTurn == true then
       break
     end
     dealer:hit(drawFrom)
@@ -284,6 +302,9 @@ function compare()
   if user:count_hand() > dealer:count_hand() then
     io.write("You win! You receive " .. user.bet .. " credits!\n")
     user:win(2)
+  elseif user:count_hand() == dealer:count_hand() then
+    io.write("Push! Your hand and the dealer's hand are equal\n")
+    user:win(1)
   else
     io.write("Dealer wins. Please try again.\n")
   end
@@ -339,7 +360,7 @@ if user.choice == 1 then
   game()
 elseif user.choice == 2 then
   -- TODO: addCredit()
-  io.write("Choice 2\n")
+  io.write("TODO: Choice 2\n")
 elseif user.choice == 3 then
   os.exit()
 end
