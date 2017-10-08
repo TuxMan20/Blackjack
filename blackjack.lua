@@ -112,14 +112,6 @@ function Player:count_hand()
     return total
 end
 
--- Evaluates the player's and dealer's cards, Returns a numeric value and a winner
-function compare()
-
--- TODO: compares the two hands
-
-end
-
-
 -- main loop of the game
 function game ()
   while true do
@@ -130,9 +122,9 @@ function game ()
 
     playerTurn()
 
-    -- dealerTurn()
+    dealerTurn()
 
-    -- evaluate()
+    compare()
 
     -- pay()
 
@@ -143,7 +135,7 @@ end
 -- TODO: Limit to integers, and prevent alphabetic entries (Causes an infinite loop)
 function bet()
 
-  if user.money == 0 then
+  if user.money < 1 then -- If user has 0.50 left, he cannot play it, so the game ends
     clear()
     io.write("You are out of money. Thank you for playing. You may now leave the casino...\n")
     sleep(5)
@@ -164,6 +156,7 @@ end
 -- TODO: Check for Blackjack and insurance
 function newDeal()
 -- Clears the screen and instantiate a new deck to draw from
+  skipDealerTurn = 0
   user:empty_hand()
   dealer:empty_hand()
 
@@ -182,7 +175,8 @@ function playerTurn()
   while true do
 
     if user:count_hand() == 21 and #user.hand == 2 then
-      io.write("BLACKJACK!! Your turn is done and you WIN!")
+      io.write("BLACKJACK!! Your turn is done and you WIN!\n")
+      skipDealerTurn = 1
       user:win(2.5)
       sleep(5)
       break
@@ -191,11 +185,11 @@ function playerTurn()
     io.write("What will you do?\n")
     io.write("(1) Hit\n")
     io.write("(2) Stay\n")
-    if user.hand[1] == user.hand[2] then
-      io.write("(3) Split\n")
-    end
     if #user.hand == 2 then
-      io.write("(4) Double\n")
+      io.write("(3) Double\n")
+    end
+    if user.hand[1] == user.hand[2] then
+      io.write("(4) Split\n")
     end
     io.write("(5) Quit\n")
 
@@ -212,10 +206,10 @@ function playerTurn()
 
         if user:count_hand() > 21 then
           io.write("\nYou went over 21. Try again.\n")
+          skipDealerTurn = 1
           sleep(5)
           clear()
           break
-
         elseif user:count_hand() == 21 then
           io.write("\nTWENTY ONE!! Your turn is done!\n")
           sleep(5)
@@ -227,14 +221,71 @@ function playerTurn()
         break
 
       elseif user.choice == 3 then
-        -- TODO: Split()
-        os.exit()
+        if user.money > user.bet * 2 then
+          user.money = user.money - user.bet
+          user.bet = user.bet * 2
+          clear()
+          redrawTable()
+          io.write("Double down for one card! Good luck! Your turn is done!\n")
+          sleep(3)
+          user:hit(drawFrom)
+
+          if user:count_hand() > 21 then
+            io.write("\nYou went over 21. Try again.\n")
+            skipDealerTurn = 1
+            sleep(5)
+            clear()
+            break
+          elseif user:count_hand() == 21 then
+            io.write("\nTWENTY ONE!! Your turn is done!\n")
+            sleep(5)
+            break
+          end
+
+          redrawTable()
+          break
+        else
+          io.write("You don't have enough credit to double your bet.\n")
+          redrawTable()
+        end
+
+
       elseif user.choice == 4 then
-        -- TODO: Double()
+        -- TODO: Split()
         os.exit()
       elseif user.choice == 5 then
         os.exit()
       end --End the choices "if"s
+  end
+end
+
+function dealerTurn()
+
+  while dealer:count_hand() < 17 do
+    if skipDealerTurn == 1 then
+      break
+    end
+    dealer:hit(drawFrom)
+    clear()
+    redrawTable()
+    io.write("Dealer's turn...\n")
+    sleep(3)
+    if dealer:count_hand() > 21 then
+      io.write("Dealer busts! You win " .. user.bet .. " credits!\n")
+      user:win(2)
+      sleep(4)
+      break
+    end
+  end
+end
+
+-- Evaluates the player's and dealer's cards, Returns a numeric value and a winner
+function compare()
+  if user:count_hand() > dealer:count_hand() then
+    io.write("You win! You receive " .. user.bet .. " credits!\n")
+    user:win(2)
+  else
+    io.write("Dealer wins. Please try again.\n")
   end
 end
 
