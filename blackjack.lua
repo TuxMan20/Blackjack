@@ -44,7 +44,8 @@ function Player:hit(deck)
 end
 
 function Player:win(amount)
-  self.money = self.money + amount
+  self.money = self.money + (self.bet * amount)
+  self.bet = 0
 end
 
 -- Empties the hand and gets ready for a new deal
@@ -141,9 +142,18 @@ end
 -- Asks the user to place a bet
 -- TODO: Limit to integers, and prevent alphabetic entries (Causes an infinite loop)
 function bet()
+
+  if user.money == 0 then
+    clear()
+    io.write("You are out of money. Thank you for playing. You may now leave the casino...\n")
+    sleep(5)
+    os.exit()
+  end
+
   repeat
+    user.bet = 0
     io.write("You have " .. user.money .. "\n" .. "How much do you want to bet: ")
-    user.bet = io.read("*n")
+    user.bet = math.floor(io.read("*numbers"))
   until user.bet > 0 and user.bet <= user.money
 
   user.money = user.money - user.bet
@@ -171,17 +181,28 @@ end
 function playerTurn()
   while true do
 
-    io.write([[What will you do?
-      (1) Hit
-      (2) Stay
-      (3) Split
-      (4) Double
-      (5) Quit]] .. "\n")
+    if user:count_hand() == 21 and #user.hand == 2 then
+      io.write("BLACKJACK!! Your turn is done and you WIN!")
+      user:win(2.5)
+      sleep(5)
+      break
+    end
+
+    io.write("What will you do?\n")
+    io.write("(1) Hit\n")
+    io.write("(2) Stay\n")
+    if user.hand[1] == user.hand[2] then
+      io.write("(3) Split\n")
+    end
+    if #user.hand == 2 then
+      io.write("(4) Double\n")
+    end
+    io.write("(5) Quit\n")
 
       repeat
         user.choice = 0
         io.write("Command: ")
-        user.choice = io.read("*numbers")
+        user.choice = math.floor(io.read("*numbers"))
       until user.choice > 0 and user.choice <= 5 and user.choice ~= nil
 
       if user.choice == 1 then
@@ -190,15 +211,21 @@ function playerTurn()
 
 
         if user:count_hand() > 21 then
-          io.write("You went over 21. Try again.\n")
+          io.write("\nYou went over 21. Try again.\n")
           sleep(5)
           clear()
+          break
+
+        elseif user:count_hand() == 21 then
+          io.write("\nTWENTY ONE!! Your turn is done!\n")
+          sleep(5)
           break
         end
 
       elseif user.choice == 2 then
-        -- TODO: Stay()
-        os.exit()
+        clear()
+        break
+
       elseif user.choice == 3 then
         -- TODO: Split()
         os.exit()
@@ -212,9 +239,7 @@ function playerTurn()
 end
 
 
-
--- Stores the player's credit score
--- TODO: store in external file for persistence
+-- First logic of the program: Setting up basic variables.
 
 borrow = 0
 
@@ -223,15 +248,18 @@ newDeck = {"A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K",
  "A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K",
  "A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K"}
 
-user = Player:new({hand = {}})
+user = Player:new({hand = {}}) -- Instantiates the user and dealer objects
 dealer = Player:new({hand = {}})
 
 user.name = "Player"
 dealer.name = "Dealer"
 
-user.money = 1000
+user.money = 1000 -- Sets the player starting money
 
--- Start of main program, and displays main menu
+---------------------------------------------------
+-- Start of main program, and displays main menu --
+---------------------------------------------------
+
 clear()
 
 io.write("\n" .. [[Welcome to Blackjack]] .. "\n")
@@ -253,7 +281,7 @@ io.write("\n" .. [[Please choose an option:
 
 repeat
   io.write("Command: ")
-  user.choice = io.read("*numbers")
+  user.choice = math.floor(io.read("*numbers"))
 until user.choice > 0 and user.choice <= 3
 
 if user.choice == 1 then
