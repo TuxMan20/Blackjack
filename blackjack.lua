@@ -43,6 +43,7 @@ function Player:hit(deck)
    table.insert(self.hand, draw(deck))
 end
 
+-- Give the money back + the bet
 function Player:win(amount)
   self.money = self.money + (self.bet * amount)
   self.bet = 0
@@ -102,6 +103,14 @@ function checkSuits(card)
   end
 end
 
+function checkAce(card)
+  if card == 'A' then
+    return 11
+  else
+    return card
+  end
+end
+
 -- Calculates the hand total after every hit
 function Player:count_hand()
     local total = 0
@@ -113,7 +122,7 @@ function Player:count_hand()
 
       value = checkSuits(value)
 
-    if value == 'A' then
+    if checkAce(value) == 11 then
       value = 11
       softHand = true
       softHandCount = softHandCount + 1
@@ -193,14 +202,26 @@ end
 function playerTurn()
   while true do
 
-    -- Checks for a dealer blackjack, user loses. Turn ends.
+    -- Checks for a dealer blackjack if he shows a 10, user loses. Turn ends.
     if dealer:count_hand() == 21 and checkSuits(dealer.hand[1]) == 10  and user:count_hand() ~= 21 then
       showDealerCards = true
       skipDealerTurn = true
       redrawTable()
       io.write("Dealer has a Blackjack! Better luck next time...")
       break
+    --[[elseif checkAce(dealer.hand[1]) == 11 then
+      io.write("Dealer has an Ace up. Do you want to take insurance?\n")
+      io.write("[Y]/n\n")
+      repeat
+        user.choice = 0
+        io.write("Command: ")
+        user.choice = io.read()
+      until user.choice == 'Y' or user.choice == 'y' or user.choice == 'n' or user.choice == 'N' or user.choice == nil
+      if user.choice == 'Y' or user.choice == 'y' or user.choice == nil then
+        user:
+      end]]--
     end
+
 
     -- Checks for user blackjack, user wins
     if user:count_hand() == 21 and #user.hand == 2 and dealer:count_hand() ~= 21 then
@@ -254,7 +275,7 @@ function playerTurn()
 
       -- Choice #3: Double: First 2 cards only, double the bet, hit ONE card and goes to the dealer turn
       elseif user.choice == 3 then
-        if user.money > user.bet * 2 then
+        if user.money - user.bet >= 0 then
           user.money = user.money - user.bet
           user.bet = user.bet * 2
           clear()
