@@ -193,7 +193,8 @@ end
 function playerTurn()
   while true do
 
-    if dealer:count_hand() == 21 and checkSuits(dealer.hand[1]) == 10 then
+    -- Checks for a dealer blackjack, user loses. Turn ends.
+    if dealer:count_hand() == 21 and checkSuits(dealer.hand[1]) == 10  and user:count_hand() ~= 21 then
       showDealerCards = true
       skipDealerTurn = true
       redrawTable()
@@ -201,7 +202,8 @@ function playerTurn()
       break
     end
 
-    if user:count_hand() == 21 and #user.hand == 2 then
+    -- Checks for user blackjack, user wins
+    if user:count_hand() == 21 and #user.hand == 2 and dealer:count_hand() ~= 21 then
       io.write("BLACKJACK!! Your turn is done and you WIN!\n")
       skipDealerTurn = true
       sleep(3)
@@ -214,6 +216,7 @@ function playerTurn()
     if #user.hand == 2 then
       io.write("(3) Double\n")
     end
+
     if user.hand[1] == user.hand[2] then
       io.write("(4) Split\n")
     end
@@ -225,27 +228,31 @@ function playerTurn()
         user.choice = math.floor(io.read("*numbers"))
       until user.choice > 0 and user.choice <= 5 and user.choice ~= nil
 
+      -- Choice #1: Hit and draw a card, checks for going over 21
       if user.choice == 1 then
         user:hit(drawFrom)
         redrawTable()
 
-
+        -- If user goes above 21, he loses
         if user:count_hand() > 21 then
           io.write("\nYou went over 21. Try again.\n")
           skipDealerTurn = true
           sleep(5)
           clear()
           break
+        -- If user has exactly 21, his turn is done
         elseif user:count_hand() == 21 then
           io.write("\nTWENTY ONE!! Your turn is done!\n")
           sleep(5)
           break
         end
 
+      -- Choice #2: Stand, simply breaks out of the loop and goes to dealer turn
       elseif user.choice == 2 then
         clear()
         break
 
+      -- Choice #3: Double: First 2 cards only, double the bet, hit ONE card and goes to the dealer turn
       elseif user.choice == 3 then
         if user.money > user.bet * 2 then
           user.money = user.money - user.bet
@@ -278,16 +285,19 @@ function playerTurn()
           redrawTable()
         end
 
-
+      -- Choice #4: Split. Only if the two cards are the same. Create an additional hand to be played independently
       elseif user.choice == 4 then
         -- TODO: Split()
         os.exit()
+
+      -- Choice #5: Quit. Forfeit the hand and the bet and walk away
       elseif user.choice == 5 then
         os.exit()
       end --End the choices "if"s
   end
 end
 
+-- Dealer plays until he hits 17 (Also soft 17s)
 function dealerTurn()
 showDealerCards = true
 redrawTable()
