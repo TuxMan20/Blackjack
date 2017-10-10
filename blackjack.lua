@@ -170,9 +170,8 @@ function bet()
 
   repeat
     user.insurance = 0
-    user.bet = 0
     io.write("You have " .. user.money .. "\n" .. "How much do you want to bet: ")
-    user.bet = math.floor(io.read("*numbers"))
+    user.bet = math.floor(io.read("*n"))
   until user.bet > 0 and user.bet <= user.money
 
   user.money = user.money - user.bet
@@ -198,11 +197,12 @@ function newDeal()
   for i = 1, 2 do
     user:hit(drawFrom)
   end
-  --[[for i = 1, 2 do  -- Disabling dealer hits for blackjack testing
+  --[[for i = 1, 2 do  -- Disabling dealer hits for Insurance testing
     dealer:hit(drawFrom)
   end]]--
+
   dealer.hand[1] = 'A'
-  dealer.hand[2] = 'J'
+  dealer.hand[2] = '8'
 
   redrawTable()
 end
@@ -215,18 +215,24 @@ function playerTurn()
     if dealer:count_hand() == 21 and checkSuits(dealer.hand[1]) == 10  and user:count_hand() ~= 21 then
       showDealerCards = true
       skipDealerTurn = true
+      dealer.blackjack = true
       redrawTable()
-      io.write("Dealer has a Blackjack! Better luck next time...")
       break
     -- Checks for a dealer Blackjack if he shows an Ace. Asks for insurance.
     elseif checkAce(dealer.hand[1]) == 11 then
       io.write("Dealer has an Ace up. Do you want to take insurance?\n")
+      io.write("[y/n]: ")
       repeat
         user.choice = 0
-        io.write("[y/n]: ")
         user.choice = io.read()
       until user.choice == 'Y' or user.choice == 'y' or user.choice == 'n' or user.choice == 'N'
-      if user.choice == 'Y' or user.choice == 'y' or user.choice == nil then
+      if user.choice == 'Y' or user.choice == 'y' and user:count_hand() == 21 then -- Taking even money on a Blackjack
+        skipDealerTurn = true
+        showDealerCards = true
+        insuranceTaken = true
+        user.blackjack = true
+        break
+      elseif user.choice == 'Y' or user.choice == 'y' then
         user.insurance = user.bet / 2
         user.money = user.money - user.insurance
         insuranceTaken = true
@@ -236,19 +242,23 @@ function playerTurn()
 
       if dealer:count_hand() == 21 and #dealer.hand == 2 then
         if insuranceTaken == true then
+          dealer.blackjack = true
           showDealerCards = true
           redrawTable()
-          io.write("Dealer has a Blackjack! Since you took insurance, you recover your bet.")
-          user.money = user.money + user.bet + user.insurance
           break
 
         elseif insuranceTaken == false then
+          dealer.blackjack = true
           showDealerCards = true
           redrawTable()
-          io.write("Dealer has a Blackjack! Since you didn't take insurance.. you LOSE, sir!")
           skipDealerTurn = true
           break
         end
+      else
+        sleep(3)
+        io.write("Dealer has no blackjack. You lose the insurance.\n")
+        sleep(3)
+        redrawTable()
       end
     end
 
@@ -256,7 +266,6 @@ function playerTurn()
     -- Checks for user blackjack, user wins
     if user:count_hand() == 21 and #user.hand == 2 and dealer:count_hand() ~= 21 then
       user.blackjack = true
-      io.write("BLACKJACK!! Your turn is done and you WIN!\n")
       skipDealerTurn = true
       sleep(3)
       break
@@ -382,10 +391,19 @@ function compare()
   elseif user:count_hand() == dealer:count_hand() then
     io.write("Push! Your hand and the dealer's hand are equal\n")
     user:win(1)
-  elseif user:count_hand() == 21 and #user.hand == 2 then
+  elseif user.blackjack == true then
+    io.write("BLACKJACK!! Your turn is done and you WIN!\n")
     user:win(2.5)
   elseif dealer:count_hand() > user:count_hand() and dealer:count_hand() < 21 then
     io.write("Dealer wins. Please try again.\n")
+  elseif dealer.blackjack == true and insuranceTaken == false then
+    io.write("Dealer has a Blackjack! Better luck next time...")
+  elseif dealer.blackjack == true and insuranceTaken == true then
+    io.write("Dealer has a Blackjack! Since you took insurance you recover your bet\n")
+    user:win(1)
+  elseif user.blackjack == true and insuranceTaken == true then
+    io.write("You took even money. You win " .. user.bet)
+    user:win(2)
   end
 end
 
