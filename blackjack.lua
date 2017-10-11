@@ -94,7 +94,7 @@ function redrawTable()
     io.write("(" .. dealer:count_hand() .. ")")
   end
   io.write("\n\n")
-  io.write("Your bet:" .. user.bet .. "\n")
+  io.write("Your bet: " .. user.bet .. "\n")
 end
 
 function checkSuits(card)
@@ -197,12 +197,14 @@ function newDeal()
   for i = 1, 2 do
     user:hit(drawFrom)
   end
-  --[[for i = 1, 2 do  -- Disabling dealer hits for Insurance testing
+  --user.hand[1] = '8'
+  --user.hand[2] = 'J' -- keeping those for tests
+  for i = 1, 2 do
     dealer:hit(drawFrom)
-  end]]--
+  end
 
-  dealer.hand[1] = 'A'
-  dealer.hand[2] = '8'
+  --dealer.hand[1] = 'A'
+  --dealer.hand[2] = 'K' -- keeping those for tests
 
   redrawTable()
 end
@@ -211,60 +213,66 @@ end
 function playerTurn()
   while true do
 
-    -- Checks for a dealer blackjack if he shows a 10, user loses. Turn ends.
-    if dealer:count_hand() == 21 and checkSuits(dealer.hand[1]) == 10  and user:count_hand() ~= 21 then
-      showDealerCards = true
-      skipDealerTurn = true
-      dealer.blackjack = true
-      redrawTable()
-      break
-    -- Checks for a dealer Blackjack if he shows an Ace. Asks for insurance.
-    elseif checkAce(dealer.hand[1]) == 11 then
-      io.write("Dealer has an Ace up. Do you want to take insurance?\n")
-      io.write("[y/n]: ")
-      repeat
-        user.choice = 0
-        user.choice = io.read()
-      until user.choice == 'Y' or user.choice == 'y' or user.choice == 'n' or user.choice == 'N'
-      if user.choice == 'Y' or user.choice == 'y' and user:count_hand() == 21 then -- Taking even money on a Blackjack
-        skipDealerTurn = true
+    -- Checks for a dealer blackjack if he shows a 10 or Ace, user loses. Turn ends.
+    if #user.hand == 2 then
+      if dealer:count_hand() == 21 and checkSuits(dealer.hand[1]) == 10  and user:count_hand() ~= 21then
         showDealerCards = true
-        insuranceTaken = true
-        user.blackjack = true
-        break
-      elseif user.choice == 'Y' or user.choice == 'y' then
-        user.insurance = user.bet / 2
-        user.money = user.money - user.insurance
-        insuranceTaken = true
-      elseif user.choice == 'N' or user.choice == 'n' then
-        insuranceTaken = false
-      end
-
-      if dealer:count_hand() == 21 and #dealer.hand == 2 then
-        if insuranceTaken == true then
-          dealer.blackjack = true
-          showDealerCards = true
-          redrawTable()
-          break
-
-        elseif insuranceTaken == false then
-          dealer.blackjack = true
-          showDealerCards = true
-          redrawTable()
-          skipDealerTurn = true
-          break
-        end
-      else
-        sleep(3)
-        io.write("Dealer has no blackjack. You lose the insurance.\n")
-        sleep(3)
+        skipDealerTurn = true
+        dealer.blackjack = true
         redrawTable()
+        break
+      -- Checks for a dealer Blackjack if he shows an Ace. Asks for insurance.
+      elseif checkAce(dealer.hand[1]) == 11 and #user.hand == 2 then
+        io.write("Dealer has an Ace up. Do you want to take insurance?\n")
+        io.write("[y/n]: ")
+        repeat
+          user.choice = 0
+          user.choice = io.read()
+        until user.choice == 'Y' or user.choice == 'y' or user.choice == 'n' or user.choice == 'N'
+        if user.choice == 'Y' or user.choice == 'y' and user:count_hand() == 21 then -- Taking even money on a Blackjack
+          skipDealerTurn = true
+          showDealerCards = true
+          insuranceTaken = true
+          user.blackjack = true
+          break
+        elseif user.choice == 'Y' or user.choice == 'y' then
+          user.insurance = user.bet / 2
+          user.money = user.money - user.insurance
+          insuranceTaken = true
+        elseif user.choice == 'N' or user.choice == 'n' then
+          insuranceTaken = false
+        end
+
+        if dealer:count_hand() == 21 and #dealer.hand == 2 then
+          if insuranceTaken == true then
+            dealer.blackjack = true
+            showDealerCards = true
+            redrawTable()
+            break
+
+          elseif insuranceTaken == false then
+            dealer.blackjack = true
+            showDealerCards = true
+            redrawTable()
+            skipDealerTurn = true
+            break
+          end
+        else
+          sleep(3)
+          if insuranceTaken == true then
+            io.write("Dealer has no blackjack. You lose the insurance.\n")
+          else
+            io.write("Dealer has no blackjack.\n")
+          end
+          sleep(3)
+          redrawTable()
+        end
       end
     end
 
 
     -- Checks for user blackjack, user wins
-    if user:count_hand() == 21 and #user.hand == 2 and dealer:count_hand() ~= 21 then
+    if user:count_hand() == 21 and #user.hand == 2 then
       user.blackjack = true
       skipDealerTurn = true
       sleep(3)
@@ -296,9 +304,9 @@ function playerTurn()
 
         -- If user goes above 21, he loses
         if user:count_hand() > 21 then
-          io.write("\nYou went over 21. Try again.\n")
           skipDealerTurn = true
-          sleep(5)
+          showDealerCards = true
+          sleep(1)
           clear()
           break
         -- If user has exactly 21, his turn is done
@@ -384,26 +392,31 @@ io.write("Dealer's turn...\n")
 end
 
 -- Evaluates the player's and dealer's cards, Returns a numeric value and a winner
+-- Contains the win/loss conditions for every scenarios
 function compare()
-  if user:count_hand() > dealer:count_hand() and user:count_hand() < 22 then
+
+  if user.blackjack == true and dealer:count_hand() ~= 21 then
+    io.write("BLACKJACK!! Your turn is done and you WIN " .. user.bet * 1.5 .. " credits!\n")
+    user:win(2.5)
+  elseif user:count_hand() > dealer:count_hand() and user:count_hand() < 22 then
     io.write("You win! You receive " .. user.bet .. " credits!\n")
+    user:win(2)
+  elseif user:count_hand() > 21 then
+    io.write("\nYou went over 21. Try again.\n")
+  elseif user.blackjack == true and insuranceTaken == true then
+    io.write("You took even money on a Blackjack. You win " .. user.bet .. " credits.\n")
     user:win(2)
   elseif user:count_hand() == dealer:count_hand() then
     io.write("Push! Your hand and the dealer's hand are equal\n")
     user:win(1)
-  elseif user.blackjack == true then
-    io.write("BLACKJACK!! Your turn is done and you WIN!\n")
-    user:win(2.5)
   elseif dealer:count_hand() > user:count_hand() and dealer:count_hand() < 21 then
     io.write("Dealer wins. Please try again.\n")
   elseif dealer.blackjack == true and insuranceTaken == false then
-    io.write("Dealer has a Blackjack! Better luck next time...")
+    io.write("Dealer has a Blackjack! Better luck next time...\n")
   elseif dealer.blackjack == true and insuranceTaken == true then
     io.write("Dealer has a Blackjack! Since you took insurance you recover your bet\n")
     user:win(1)
-  elseif user.blackjack == true and insuranceTaken == true then
-    io.write("You took even money. You win " .. user.bet)
-    user:win(2)
+
   end
 end
 
