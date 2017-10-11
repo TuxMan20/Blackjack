@@ -1,6 +1,8 @@
 
 -- Let the program stops temporarily to create basic animation
 function sleep (a)
+  -- When inside OpenOS, you delete everything in here and replace with:
+  -- os.sleep(a)
   local sec = tonumber(os.clock() + a);
   while (os.clock() < sec) do
   end
