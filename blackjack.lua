@@ -1,25 +1,9 @@
 
--- Let the program stops temporarily to create basic animation
-function sleep (a)
-  -- When inside OpenOS, you delete everything in here and replace with:
-  -- os.sleep(a)
-  local sec = tonumber(os.clock() + a);
-  while (os.clock() < sec) do
-  end
-end
+-- Links the helpers.lua library file to clean up the main code
+functions = require("helpers")
 
 -- Setting the randomness seed
 math.randomseed(os.time())
-
--- Function to copy Tables (keeping a table of a new deck)
-function table.clone(org)
-  return {table.unpack(org)}
-end
-
--- Clears the Terminal screen (When redrawing the play area)
-function clear()
-  os.execute("clear")
-end
 
 -- Initializing the Player class for user and dealer
 Player = {}
@@ -60,61 +44,6 @@ function Player:empty_hand()
  end
 end
 
--- Draws a random card from the deck "drawFrom" and removes the
--- card each time to make sure it is not drawn twice.
--- Returns the drawn card value as output
-function draw(deck)
-    local n = #deck
-    local pos = math.random(n)
-    local cardDrew = deck[pos]
-    table.remove(deck, pos)
-    return cardDrew
-end
-
--- Draws/Updates the play area on the table
-function redrawTable()
-  clear()
-
-  io.write("You: ")
-  for i = 1, #user.hand do
-    io.write(user.hand[i] .. " ")
-  end
-  io.write("(" .. user:count_hand() .. ")")
-
-  io.write("\nDealer: ")
-
-  if showDealerCards == false then -- Before the dealer turn, his second card is not shown
-    io.write(dealer.hand[1] .. " ")
-  else
-    for i = 1, #dealer.hand do
-      io.write(dealer.hand[i] .. " ")
-    end
-  end
-  if showDealerCards == false then -- Before the dealer turn, his second card is not counted
-    io.write("(" .. checkSuits(dealer.hand[1]) .. ")")
-  else
-    io.write("(" .. dealer:count_hand() .. ")")
-  end
-  io.write("\n\n")
-  io.write("Your bet: " .. user.bet .. "\n")
-end
-
-function checkSuits(card)
-  if card == 'J' or card == 'Q' or card == 'K' then
-    return 10
-  else
-    return card
-  end
-end
-
-function checkAce(card)
-  if card == 'A' then
-    return 11
-  else
-    return card
-  end
-end
-
 -- Calculates the hand total after every hit
 function Player:count_hand()
     local total = 0
@@ -142,7 +71,7 @@ function Player:count_hand()
     return total
 end
 
--- main loop of the game
+-------------- main loop of the game --------------------
 function game ()
   while true do
 
@@ -160,7 +89,7 @@ function game ()
 end
 
 -- Asks the user to place a bet
--- TODO: Limit to integers, and prevent alphabetic entries (Causes an infinite loop)
+-- TODO: Limit to integers, and prevent alphabetic entries (Causes a crash)
 function bet()
 
   if user.money < 1 then -- If user has 0.50 left, he cannot play it, so the game ends
@@ -181,10 +110,8 @@ end
 
 
 -- Deals the first two cards to dealer and player
--- TODO: Check for Blackjack and insurance
 function newDeal()
 -- Clears the screen and instantiate a new deck to draw from
-
 -- Resets all the flags to default
   user.blackjack = false
   dealer.blackjack = false
