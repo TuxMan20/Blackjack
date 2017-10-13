@@ -3,10 +3,10 @@ Blackjack game in Lua to be used on OpenOS in the Minecraft Mod 'OpenComputers'
 By TuxMan20
 Forks are welcomed
 
-- TODO: Complete game actions (Split) -- Still no idea how I'll do that...
-- TODO: Separate the game, functions and class files.
+- TODO: Complete game actions (Split)
 - TODO: Add sleep() between card draws for animation sake (creating tension/anticipation)
 
+- DONE: Separate the game, functions and class files.
 - DONE: Ask for insurance ("My god! it's full of IFs")
 - DONE: Pay winnings
 - DONE: Check for blackjacks at first draw (dealer and user)
@@ -22,4 +22,5 @@ Long term goals:
 - Adding support for external inventories in Minecraft for in-game items Bets and Payouts
 - Adding support for Redstone in Minecraft to have more world interaction (ie: blinking lights when winning)
 - Adding a simple GUI compatible with OpenOS
+-           - Maybe the one from Dustpuppy (https://oc.cil.li/index.php?/topic/997-my-gui-now-with-visual-editor/)
 - Porting the game logic to Love2D for a more modern looking game
