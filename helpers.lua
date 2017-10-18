@@ -1,3 +1,18 @@
+function debugTux(text)
+  if text == nil then
+    text = "nil"
+  elseif type(text) == "table" then
+    io.write("Debug: ")
+    for k,v in pairs(text) do
+      io.write("[" .. v .. "]")
+    end
+    io.write("\n")
+  else
+    print("Debug: " .. text .. "\n")
+  end
+end
+
+
 -- Let the program stops temporarily to create basic animation
 function sleep (a)
   -- When inside OpenOS, you delete everything in here and replace with:
@@ -33,27 +48,27 @@ function redrawTable()
   clear()
 
   io.write("You: ")
-  for i = 1, #user.hand do
-    io.write(user.hand[i] .. " ")
+  for i = 1, #user.hand[user.curHand] do
+    io.write(user.hand[user.curHand][i] .. " ")
   end
   io.write("(" .. user:count_hand() .. ")")
 
   io.write("\nDealer: ")
 
   if showDealerCards == false then -- Before the dealer turn, his second card is not shown
-    io.write(dealer.hand[1] .. " ")
+    io.write(dealer.hand[1][1] .. " ")
   else
-    for i = 1, #dealer.hand do
-      io.write(dealer.hand[i] .. " ")
+    for i = 1, #dealer.hand[1] do
+      io.write(dealer.hand[1][i] .. " ")
     end
   end
   if showDealerCards == false then -- Before the dealer turn, his second card is not counted
-    io.write("(" .. checkSuits(dealer.hand[1]) .. ")")
+    io.write("(" .. checkSuits(dealer.hand[1][1]) .. ")")
   else
     io.write("(" .. dealer:count_hand() .. ")")
   end
   io.write("\n\n")
-  io.write("Your bet: " .. user.bet .. "\n")
+  io.write("Your bet: " .. user.bet[user.curHand] .. "\n")
 end
 
 -- Converts the face cards to the value 10
@@ -73,3 +88,8 @@ function checkAce(card)
     return card
   end
 end
+
+newDeck = {"A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K",
+ "A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K",
+ "A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K",
+ "A", 2, 3, 4, 5, 6, 7, 8, 9 , 10, "J", "Q", "K"}
