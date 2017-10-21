@@ -28,8 +28,8 @@ function Player:hit(deck)
 end
 
 -- Give the money back + the bet
-function Player:win(amount)
-  self.money = self.money + (self.bet[self.curHand] * amount)
+function Player:win(amount, pos)
+  self.money = self.money + (self.bet[pos] * amount)
   self.bet = 0
 end
 
@@ -45,13 +45,13 @@ end
 end]]--
 
 -- Calculates the hand total after every hit
-function Player:count_hand()
+function count_hand(hand)
     local total = 0
     local softHand = false
     local softHandCount = 0
 
-    for i = 1, #self.hand[self.curHand] do
-      local value = self.hand[self.curHand][i]
+    for i = 1, #hand do
+      local value = hand[i]
 
       value = checkSuits(value)
 

@@ -1,8 +1,10 @@
 
 local dbg = require("debugger")
+
 -- Links the helpers.lua library file to clean up the main code
 local functions = require("helpers")
 
+-- Players object
 local Players = require("players")
 
 -- Setting the randomness seed
@@ -29,7 +31,7 @@ end
 
 -- Asks the user to place a bet
 function bet()
-  user.curHand = 1 -- Resets the current bet used if the user has Split
+  user.curHand = 1 -- Resets the current hand used if the user has Split
 
   user.bet = {0, 0, 0, 0}
 
@@ -62,22 +64,22 @@ function newDeal()
   skipDealerTurn = false
   showDealerCards = false
   user.split = 1
-  user.hand = {{}, {}, {}, {}} -- maybe I wont need those if I found the right bug
-  dealer.hand = {{}} -- I was resetting the HANDS to 0 instead of the BETS!!
+  user.hand = {{}, {}, {}, {}}
+  dealer.hand = {{}}
 
   drawFrom = table.clone(newDeck)
 
-  for i = 1, 2 do
+  --[[for i = 1, 2 do
     user:hit(drawFrom)
-  end
-  --user.hand[1][1] = '8'
-  --user.hand[1][2] = '8' -- keeping those for tests
+  end]]--
+  user.hand[1][1] = '10'
+  user.hand[1][2] = '10' -- keeping those for tests
 
   for i = 1, 2 do
     dealer:hit(drawFrom)
   end
-  --dealer.hand[1][1] = 'A'
-  --dealer.hand[1][2] = '9' -- keeping those for tests
+  --dealer.hand[1][1] = '10'
+  --dealer.hand[1][2] = '6' -- keeping those for tests
   redrawTable()
 end
 
@@ -89,7 +91,7 @@ function playerTurn()
 
       -- Checks for a dealer blackjack if he shows a 10 or Ace, user loses. Turn ends.
       if #user.hand[user.curHand] == 2 then
-        if dealer:count_hand() == 21 and checkSuits(dealer.hand[1][1]) == 10  and user:count_hand() ~= 21then
+        if count_hand(dealer.hand[1]) == 21 and checkSuits(dealer.hand[1][1]) == 10  and count_hand(user.hand[user.curHand]) ~= 21then
           showDealerCards = true
           skipDealerTurn = true
           dealer.blackjack = true
@@ -103,7 +105,7 @@ function playerTurn()
             user.choice = 0
             user.choice = io.read("*line")
           until user.choice == 'Y' or user.choice == 'y' or user.choice == 'n' or user.choice == 'N'
-          if user.choice == 'Y' or user.choice == 'y' and user:count_hand() == 21 then -- Taking even money on a Blackjack
+          if user.choice == 'Y' or user.choice == 'y' and count_hand(user.hand[user.curHand]) == 21 then -- Taking even money on a Blackjack
             skipDealerTurn = true
             showDealerCards = true
             insuranceTaken = true
@@ -117,7 +119,7 @@ function playerTurn()
             insuranceTaken = false
           end
 
-          if dealer:count_hand() == 21 and #dealer.hand[1] == 2 then
+          if count_hand(dealer.hand[1]) == 21 and #dealer.hand[1] == 2 then
             if insuranceTaken == true then
               dealer.blackjack = true
               showDealerCards = true
@@ -146,14 +148,22 @@ function playerTurn()
 
 
       -- Checks for user blackjack, user wins
-      if user:count_hand() == 21 and #user.hand[1] == 2 then
+      if count_hand(user.hand[user.curHand]) == 21 and #user.hand[1] == 2 then
         user.blackjack = true
         skipDealerTurn = true
         sleep(3)
         break
       end
------- Loop considering player's hands and Split -------
---repeat
+------ Main player's Loop considering player's hands and Split -------
+repeat
+      if #user.hand[user.curHand] < 2 then
+        user:hit(drawFrom)
+        if count_hand(user.hand[user.curHand]) == 21 and user.split > 1 then
+          io.write("\nTWENTY ONE!! This hand is done!\n")
+          user.curHand = user.curHand + 1
+        end
+        redrawTable()
+      end
       io.write("What will you do?\n")
       io.write("(1) Hit\n")
       io.write("(2) Stay\n")
@@ -175,26 +185,28 @@ function playerTurn()
         -- Choice #1: Hit and draw a card, checks for going over 21
         if user.choice == 1 then
           user:hit(drawFrom)
+          sleep(1)
           redrawTable()
 
           -- If user goes above 21, he loses
-          if user:count_hand() > 21 then
+          if count_hand(user.hand[user.curHand]) > 21 then
             skipDealerTurn = true
             showDealerCards = true
             sleep(1)
             clear()
-            break
+            user.curHand = user.curHand + 1
+
           -- If user has exactly 21, his turn is done
-          elseif user:count_hand() == 21 then
+          elseif count_hand(user.hand[user.curHand]) == 21 then
             io.write("\nTWENTY ONE!! Your turn is done!\n")
             sleep(5)
-            break
+            user.curHand = user.curHand + 1
           end
 
         -- Choice #2: Stand, simply breaks out of the loop and goes to dealer turn
         elseif user.choice == 2 then
           clear()
-          break
+          user.curHand = user.curHand + 1
 
         -- Choice #3: Double: First 2 cards only, double the bet, hit ONE card and goes to the dealer turn
         elseif user.choice == 3 and #user.hand[user.curHand] == 2 then
@@ -207,22 +219,23 @@ function playerTurn()
             sleep(3)
             user:hit(drawFrom)
 
-            if user:count_hand() > 21 then
+            if count_hand(user.hand[user.curHand]) > 21 then
               redrawTable()
               io.write("\nYou went over 21. Try again.\n")
-              showDealerCards = true
               skipDealerTurn = true
-              sleep(5)
+              sleep(3)
               clear()
-              break
-            elseif user:count_hand() == 21 then
+              user.curHand = user.curHand + 1
+
+            elseif count_hand(user.hand[user.curHand]) == 21 then
               io.write("\nTWENTY ONE!! Your turn is done!\n")
               sleep(5)
-              break
+              user.curHand = user.curHand + 1
             end
 
             redrawTable()
-            break
+            user.curHand = user.curHand + 1
+
           else
             io.write("You don't have enough credit to double your bet.\n")
             sleep(3)
@@ -230,22 +243,26 @@ function playerTurn()
           end
 
         -- Choice #4: Split. Only if the two cards are the same. Create an additional hand to be played independently
-        elseif user.choice == 4 and user.hand[user.curHand][1] == user.hand[user.curHand][2] then
+      elseif user.choice == 4 and user.hand[user.curHand][1] == user.hand[user.curHand][2] and #user.hand[user.curHand] == 2 then
           if user.money - user.bet[user.curHand] >= 0 then
             user.split = user.split + 1
+            table.insert(user.hand[user.curHand+1], user.hand[user.curHand][2])
+            table.remove(user.hand[user.curHand], 2)
+            user.bet[user.curHand + 1] = user.bet[1]
+            user.money = user.money - user.bet[1]
+            redrawTable()
           else
             io.write("You don't have enough credit to split your hand.\n")
-            sleep(3)
+            sleep(2)
             redrawTable()
           end
-
-
 
         -- Choice #5: Quit. Forfeit the hand and the bet, goes back to main menu
         elseif user.choice == 5 then
           main()
         end --End the choices "if"s
-      --until user.curHand == user.split
+      until user.curHand > user.split
+      break
     end
 end
 
@@ -256,7 +273,7 @@ redrawTable()
 sleep(2)
 io.write("Dealer's turn...\n")
 
-  while dealer:count_hand() < 17 do
+  while count_hand(dealer.hand[1]) < 17 do
     if skipDealerTurn == true then
       break
     end
@@ -265,10 +282,8 @@ io.write("Dealer's turn...\n")
     redrawTable()
     io.write("Dealer's turn...\n")
     sleep(3)
-    if dealer:count_hand() > 21 then
-      io.write("Dealer busts! You win " .. user.bet[user.curHand] .. " credits!\n")
-      user:win(2)
-      sleep(4)
+    if count_hand(dealer.hand[1]) > 21 then
+      sleep(1)
       break
     end
   end
@@ -280,64 +295,69 @@ end
 -- User gets back his bet + his winnings, hence, 2 times his bet.)
 function compare()
 
-  -- User has a blackjack and the dealer doesn't, users wins 1.5x
-  if user.blackjack == true and dealer:count_hand() ~= 21 then
-    io.write("BLACKJACK!! Your turn is done and you WIN " .. user.bet[user.curHand] * 1.5 .. " credits!\n")
-    user:win(2.5)
+local curHand = 0
+for i = 1, user.split do
+  local curHand = i
+  io.write("Hand " .. curHand .. ": ")
+    -- Dealer busts. User wins 1x on each hand lower than 22
+    if count_hand(dealer.hand[1]) > 21 then
+      io.write("Dealer busts! You win " .. user.bet[curHand] .. " credits!\n")
+      user:win(2, i)
 
-  -- User has a higher total than the dealer, less than 22, user wins 1x
-  elseif user:count_hand() > dealer:count_hand() and user:count_hand() < 22 then
-    if user.split > 1 then
-      io.write("Hand " .. user.curHand .. ": ")
+    -- User has a blackjack and the dealer doesn't, users wins 1.5x
+    elseif user.blackjack == true and count_hand(dealer.hand[1]) ~= 21 then
+      io.write("BLACKJACK!! Your turn is done and you WIN " .. user.bet[curHand] * 1.5 .. " credits!\n")
+      user:win(2.5, i)
+
+    -- User has a higher total than the dealer, less than 22, user wins 1x
+  elseif count_hand(user.hand[curHand]) > count_hand(dealer.hand[1]) and count_hand(user.hand[curHand]) < 22 then
+      io.write("You win! You receive " .. user.bet[curHand] .. " credits!\n")
+      user:win(2, i)
+
+    -- User busts, over 21, user loses
+    elseif count_hand(user.hand[curHand]) > 21 then
+      io.write("You went over 21. Try again.\n")
+
+    -- User has a blackjack and takes even money on insurance, user wins 1x
+    elseif user.blackjack == true and insuranceTaken == true then
+      io.write("You took even money on a Blackjack. You win " .. user.bet[curHand] .. " credits.\n")
+      user:win(2, i)
+
+    -- User and Dealer have equal totals, user is even
+    elseif count_hand(user.hand[curHand]) == count_hand(dealer.hand[1]) then
+      io.write("Push! Your hand and the dealer's hand are equal\n")
+      user:win(1, i)
+
+    -- Dealer has a higher total, user loses
+    elseif count_hand(dealer.hand[1]) > count_hand(user.hand[curHand]) and count_hand(dealer.hand[1]) < 21 then
+      io.write("Dealer wins. Please try again.\n")
+
+    -- Dealer has a blackjack, no insurance, user loses.
+    elseif dealer.blackjack == true and insuranceTaken == false then
+      io.write("Dealer has a Blackjack! Better luck next time...\n")
+
+    -- Dealer has a blackjack, with insurance, user is even
+    elseif dealer.blackjack == true and insuranceTaken == true then
+      io.write("Dealer has a Blackjack! Since you took insurance you recover your bet\n")
+      user:win(1)
+
     end
-    io.write("You win! You receive " .. user.bet[user.curHand] .. " credits!\n")
-    user:win(2)
-
-  -- User busts, over 21, user loses
-  elseif user:count_hand() > 21 then
-    io.write("\nYou went over 21. Try again.\n")
-
-  -- User has a blackjack and takes even money on insurance, user wins 1x
-  elseif user.blackjack == true and insuranceTaken == true then
-    io.write("You took even money on a Blackjack. You win " .. user.bet[user.curHand] .. " credits.\n")
-    user:win(2)
-
-  -- User and Dealer have equal totals, user is even
-  elseif user:count_hand() == dealer:count_hand() then
-    io.write("Push! Your hand and the dealer's hand are equal\n")
-    user:win(1)
-
-  -- Dealer has a higher total, user loses
-  elseif dealer:count_hand() > user:count_hand() and dealer:count_hand() < 21 then
-    io.write("Dealer wins. Please try again.\n")
-
-  -- Dealer has a blackjack, no insurance, user loses.
-  elseif dealer.blackjack == true and insuranceTaken == false then
-    io.write("Dealer has a Blackjack! Better luck next time...\n")
-
-  -- Dealer has a blackjack, with insurance, user is even
-  elseif dealer.blackjack == true and insuranceTaken == true then
-    io.write("Dealer has a Blackjack! Since you took insurance you recover your bet\n")
-    user:win(1)
-
   end
 end
-
-
--- First logic of the program: Setting up basic variables.
-
-user = Player:new({hand = {{}, {}, {}, {}}}) -- Instantiates the user and dealer objects
-dealer = Player:new({hand = {{}}})
-
-user.name = "Player"
-dealer.name = "Dealer"
-
-user.money = 1000 -- Sets the player starting money
 
 ---------------------------------------------------
 -- Start of main program, and displays main menu --
 ---------------------------------------------------
 function main()
+
+  user = Player:new({hand = {{}, {}, {}, {}}}) -- Instantiates the user and dealer objects
+  dealer = Player:new({hand = {{}}})
+
+  user.name = "Player"
+  dealer.name = "Dealer"
+
+  user.money = 1000 -- Sets the player starting money
+
   clear()
 
   io.write("\n" .. [[

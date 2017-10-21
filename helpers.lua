@@ -1,3 +1,4 @@
+local dbg = require("debugger")
 
 -- Let the program stops temporarily to create basic animation
 function sleep (a)
@@ -31,15 +32,24 @@ end
 
 -- Draws/Updates the play area on the table
 function redrawTable()
+
   clear()
 
-  io.write("You: ")
-  for i = 1, #user.hand[user.curHand] do
-    io.write(user.hand[user.curHand][i] .. " ")
+  io.write("You: \n")
+  for j = 1, user.split do
+    local curHand = j
+    if user.split > 1 then
+      io.write("Hand " .. j .. ": ")
+    else
+      io.write("Hand: ")
+    end
+    for i = 1, #user.hand[curHand] do
+      io.write(user.hand[curHand][i] .. " ")
+    end
+    io.write("(" .. count_hand(user.hand[curHand]) .. ")\n")
   end
-  io.write("(" .. user:count_hand() .. ")")
 
-  io.write("\nDealer: ")
+  io.write("\nDealer: \nHand: ")
 
   if showDealerCards == false then -- Before the dealer turn, his second card is not shown
     io.write(dealer.hand[1][1] .. " ")
@@ -51,10 +61,19 @@ function redrawTable()
   if showDealerCards == false then -- Before the dealer turn, his second card is not counted
     io.write("(" .. checkSuits(dealer.hand[1][1]) .. ")")
   else
-    io.write("(" .. dealer:count_hand() .. ")")
+    io.write("(" .. count_hand(dealer.hand[1]) .. ")")
   end
   io.write("\n\n")
-  io.write("Your bet: " .. user.bet[user.curHand] .. "\n")
+
+  for j = 1, user.split do
+    local curHand = j
+    if user.split > 1 then
+      io.write("Your bet " .. j .. ": ")
+    else
+      io.write("Your bet: ")
+    end
+    io.write(user.bet[curHand] .. "\n")
+  end
 end
 
 -- Converts the face cards to the value 10
