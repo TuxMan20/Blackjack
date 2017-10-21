@@ -1,17 +1,3 @@
-function debugTux(text)
-  if text == nil then
-    text = "nil"
-  elseif type(text) == "table" then
-    io.write("Debug: ")
-    for k,v in pairs(text) do
-      io.write("[" .. v .. "]")
-    end
-    io.write("\n")
-  else
-    print("Debug: " .. text .. "\n")
-  end
-end
-
 
 -- Let the program stops temporarily to create basic animation
 function sleep (a)
