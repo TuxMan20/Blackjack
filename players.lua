@@ -31,7 +31,6 @@ end
 -- Give the money back + the bet
 function Player:win(amount, pos)
   self.money = self.money + (self.bet[pos] * amount)
-  self.bet = 0
 end
 
 -- REMOVED: I just re-declared the tables:

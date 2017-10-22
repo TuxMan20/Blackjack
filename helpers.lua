@@ -46,7 +46,11 @@ function redrawTable()
     for i = 1, #user.hand[curHand] do
       io.write(user.hand[curHand][i] .. " ")
     end
-    io.write("(" .. count_hand(user.hand[curHand]) .. ")\n")
+    io.write("(" .. count_hand(user.hand[curHand]) .. ")")
+    if curHand == user.curHand then
+      io.write(" <")
+    end
+    io.write("\n")
   end
 
   io.write("\nDealer: \nHand: ")

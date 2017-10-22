@@ -70,11 +70,11 @@ function newDeal()
 
   drawFrom = table.clone(newDeck)
 
-  for i = 1, 2 do
+  --[[for i = 1, 2 do
     user:hit(drawFrom)
-  end
-  --user.hand[1][1] = '10'
-  --user.hand[1][2] = '10' -- keeping those for tests
+  end]]--
+  user.hand[1][1] = 'K'
+  user.hand[1][2] = 10 -- keeping those for tests
 
   for i = 1, 2 do
     dealer:hit(drawFrom)
@@ -161,6 +161,7 @@ repeat
         user:hit(drawFrom)
         if count_hand(user.hand[user.curHand]) == 21 and user.split > 1 then
           io.write("\nTWENTY ONE!! This hand is done!\n")
+          sleep(2)
           user.curHand = user.curHand + 1
         end
         redrawTable()
@@ -172,7 +173,7 @@ repeat
         io.write("(3) Double\n")
       end
 
-      if user.hand[user.curHand][1] == user.hand[user.curHand][2] then
+      if checkSuits(user.hand[user.curHand][1]) == checkSuits(user.hand[user.curHand][2]) and user.split < 4 then
         io.write("(4) Split\n")
       end
       io.write("(5) Quit\n")
@@ -244,7 +245,7 @@ repeat
           end
 
         -- Choice #4: Split. Only if the two cards are the same. Create an additional hand to be played independently
-      elseif user.choice == 4 and user.hand[user.curHand][1] == user.hand[user.curHand][2] and #user.hand[user.curHand] == 2 then
+      elseif user.choice == 4 and checkSuits(user.hand[user.curHand][1]) == checkSuits(user.hand[user.curHand][2]) and #user.hand[user.curHand] == 2 then
           if user.money - user.bet[user.curHand] >= 0 then
             user.split = user.split + 1
             table.insert(user.hand[user.curHand+1], user.hand[user.curHand][2])
@@ -275,7 +276,7 @@ sleep(2)
 io.write("Dealer's turn...\n")
 
   while count_hand(dealer.hand[1]) < 17 do
-    if skipDealerTurn == true then
+    if skipDealerTurn == true and user.split == 1 then
       break
     end
     dealer:hit(drawFrom)
@@ -297,8 +298,10 @@ end
 function compare()
 
 local curHand = 0
+io.write("\n")
 for i = 1, user.split do
   local curHand = i
+
   if user.split > 1 then
     io.write("Hand " .. curHand .. ": ")
   end
@@ -343,8 +346,8 @@ for i = 1, user.split do
     elseif dealer.blackjack == true and insuranceTaken == true then
       io.write("Dealer has a Blackjack! Since you took insurance you recover your bet\n")
       user:win(1)
-
     end
+    io.write("\n")
   end
 end
 
