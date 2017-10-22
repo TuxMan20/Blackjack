@@ -1,4 +1,5 @@
 
+-- Kepping this library for now as it's a nice gdb-like debugger
 local dbg = require("debugger")
 
 -- Links the helpers.lua library file to clean up the main code
@@ -69,11 +70,11 @@ function newDeal()
 
   drawFrom = table.clone(newDeck)
 
-  --[[for i = 1, 2 do
+  for i = 1, 2 do
     user:hit(drawFrom)
-  end]]--
-  user.hand[1][1] = '10'
-  user.hand[1][2] = '10' -- keeping those for tests
+  end
+  --user.hand[1][1] = '10'
+  --user.hand[1][2] = '10' -- keeping those for tests
 
   for i = 1, 2 do
     dealer:hit(drawFrom)
@@ -266,7 +267,7 @@ repeat
     end
 end
 
--- Dealer plays until he hits 17 (Also soft 17s)
+-- Dealer plays until he hits any 17
 function dealerTurn()
 showDealerCards = true
 redrawTable()
@@ -298,7 +299,9 @@ function compare()
 local curHand = 0
 for i = 1, user.split do
   local curHand = i
-  io.write("Hand " .. curHand .. ": ")
+  if user.split > 1 then
+    io.write("Hand " .. curHand .. ": ")
+  end
     -- Dealer busts. User wins 1x on each hand lower than 22
     if count_hand(dealer.hand[1]) > 21 then
       io.write("Dealer busts! You win " .. user.bet[curHand] .. " credits!\n")
@@ -360,16 +363,16 @@ function main()
 
   clear()
 
-  io.write("\n" .. [[
+  io.write("\n" ..[[
    _____                _____ _         _     _         _
   |     |___ ___ ___   | __  | |___ ___| |_  |_|___ ___| |_
   |  |  | . | -_|   |  | __ -| | .'|  _| '_| | | .'|  _| '_|
   |_____|  _|___|_|_|  |_____|_|__,|___|_,_|_| |__,|___|_,_|
-        |_|                                |___|            ]] .. "\n")
+        |_|                                |___|            ]] .."\n")
 
   sleep(1)
 
-  io.write("\n" .. [[By TuxMan20]] .. "\n\n")
+  io.write("\n" .. "By TuxMan20" .. "\n\n")
 
   sleep(1)
 

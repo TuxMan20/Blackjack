@@ -19,6 +19,7 @@ function Player:new (o)
      return o
 end
 
+-- I don't really use the names yet
 function Player:set_name(name)
   self.name = name
 end
