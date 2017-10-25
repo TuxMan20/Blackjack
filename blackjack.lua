@@ -70,11 +70,11 @@ function newDeal()
 
   drawFrom = table.clone(newDeck)
 
-  --[[for i = 1, 2 do
+  for i = 1, 2 do
     user:hit(drawFrom)
-  end]]--
-  user.hand[1][1] = 'K'
-  user.hand[1][2] = 10 -- keeping those for tests
+  end
+  --user.hand[1][1] = 'K'
+  --user.hand[1][2] = 10 -- keeping those for tests
 
   for i = 1, 2 do
     dealer:hit(drawFrom)
