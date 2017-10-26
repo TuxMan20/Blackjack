@@ -70,11 +70,11 @@ function newDeal()
 
   drawFrom = table.clone(newDeck)
 
-  --[[for i = 1, 2 do
+  for i = 1, 2 do
     user:hit(drawFrom)
-  end]]--
-  user.hand[1][1] = 'K'
-  user.hand[1][2] = 10 -- keeping those for tests
+  end
+  --user.hand[1][1] = 'K'
+  --user.hand[1][2] = 10 -- keeping those for tests
 
   for i = 1, 2 do
     dealer:hit(drawFrom)
@@ -92,7 +92,7 @@ function playerTurn()
 
       -- Checks for a dealer blackjack if he shows a 10 or Ace, user loses. Turn ends.
       if #user.hand[user.curHand] == 2 then
-        if count_hand(dealer.hand[1]) == 21 and checkSuits(dealer.hand[1][1]) == 10  and count_hand(user.hand[user.curHand]) ~= 21then
+        if count_hand(dealer.hand[1]) == 21 and checkSuits(dealer.hand[1][1]) == 10  and count_hand(user.hand[user.curHand]) ~= 21 then
           showDealerCards = true
           skipDealerTurn = true
           dealer.blackjack = true
