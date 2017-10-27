@@ -32,7 +32,7 @@ end
 
 -- Asks the user to place a bet
 function bet()
-  user.curHand = 1 -- Resets the current hand used if the user has Split
+  user.curHand = 1 -- Resets the current hand used if the user had Split
 
   user.bet = {0, 0, 0, 0}
 
