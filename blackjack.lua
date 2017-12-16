@@ -261,7 +261,17 @@ repeat
 
         -- Choice #5: Quit. Forfeit the hand and the bet, goes back to main menu
         elseif user.choice == 5 then
-          main()
+          io.write("Are you sure you want to quit?\n")
+          repeat
+            io.write("[y/n]: ")
+            user.choice = 0
+            user.choice = io.read("*line")
+          until user.choice == 'Y' or user.choice == 'y' or user.choice == 'n' or user.choice == 'N'
+          if user.choice == 'Y' or user.choice == 'y' then
+            main()
+          else
+            redrawTable()
+          end
         end --End the choices "if"s
       until user.curHand > user.split
       break
@@ -399,7 +409,17 @@ function main()
     -- TODO: addCredit()
     io.write("TODO: Choice 2\n")
   elseif user.choice == 3 then
-    os.exit()
+    io.write("Are you sure you want to quit?\n")
+    repeat
+      io.write("[y/n]: ")
+      user.choice = 0
+      user.choice = io.read("*line")
+    until user.choice == 'Y' or user.choice == 'y' or user.choice == 'n' or user.choice == 'N'
+    if user.choice == 'Y' or user.choice == 'y' then
+      os.exit()
+    else
+      main()
+    end
   end
 end
 
