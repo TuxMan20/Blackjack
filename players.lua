@@ -10,7 +10,7 @@ function Player:new (o)
      self.choice = 0 -- Keeps track of user's choice
      self.total = 0 -- total of the hand (addind card values)
      self.money = 0 -- Remaining credits
-     self.debt = 0 -- Will be used to borrow money when out (currently unused)
+     self.debt = 0 -- Will be used to borrow money when out
      self.curHand = 1 -- Keeps track of the current hand being played and which bet to use
      self.split = 1 -- Keeps track of the total amount of times the hand was split (total number of hands)
      self.bet = {0, 0, 0, 0} -- 4 bets for the 4 possible hands after a Split

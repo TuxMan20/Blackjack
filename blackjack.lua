@@ -40,18 +40,23 @@ function bet()
     clear()
     io.write("You are out of money. Thank you for playing. You may now leave the casino...\n")
     sleep(5)
-    os.exit()
+    main()
   end
 
   user.insurance = 0
 
+  io.write("You have " .. user.money .. "\n" .. "How much do you want to bet? (Or bet 0 to return to the main menu)\n")
   repeat
-    io.write("You have " .. user.money .. "\n" .. "How much do you want to bet: ")
+    io.write("Amount: ")
     user.bet[1] = tonumber(io.read("*line"))
-  until user.bet[1] > 0 and user.bet[1] <= user.money
+  until user.bet[1] >= 0 and user.bet[1] <= user.money
 
-  user.bet[1] = math.floor(user.bet[1])
-  user.money = user.money - user.bet[1]
+  if user.bet[1] == 0 then
+    main()
+  else
+    user.bet[1] = math.floor(user.bet[1])
+    user.money = user.money - user.bet[1]
+  end
 end
 
 
@@ -366,14 +371,6 @@ end
 ---------------------------------------------------
 function main()
 
-  user = Player:new({hand = {{}, {}, {}, {}}}) -- Instantiates the user and dealer objects
-  dealer = Player:new({hand = {{}}})
-
-  user.name = "Player"
-  dealer.name = "Dealer"
-
-  user.money = 1000 -- Sets the player starting money
-
   clear()
 
   io.write("\n" ..[[
@@ -389,7 +386,10 @@ function main()
 
   sleep(1)
 
-  io.write("Current credit: " .. user.money .. "\n\n")
+  if user.debt > 0 then
+    io.write("Current debt: " .. user.debt .. "\n")
+  end
+  io.write("Current credit: " .. user.money .. "\n")
 
   sleep(1)
 
@@ -405,9 +405,19 @@ function main()
 
   if user.choice == 1 then
     game()
+
   elseif user.choice == 2 then
-    -- TODO: addCredit()
-    io.write("TODO: Choice 2\n")
+    io.write("How much do you need to buy? (Maximum 10,000$)\n")
+    io.write("Remember you will have to repay your debts...\n")
+    repeat
+      io.write("Amount: ")
+      user.debt = tonumber(io.read("*line"))
+    until user.debt > 0 and user.debt <= 10000
+
+    user.debt = math.floor(user.debt)
+    user.money = user.money + user.debt
+    main()
+
   elseif user.choice == 3 then
     io.write("Are you sure you want to quit?\n")
     repeat
@@ -422,5 +432,13 @@ function main()
     end
   end
 end
+
+user = Player:new({hand = {{}, {}, {}, {}}}) -- Instantiates the user and dealer objects
+dealer = Player:new({hand = {{}}})
+
+user.name = "Player"
+dealer.name = "Dealer"
+
+user.money = 1000 -- Sets the player starting money
 
 main()
