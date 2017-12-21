@@ -4,7 +4,6 @@ Blackjack game in Lua to be used on OpenOS in the Minecraft Mod 'OpenComputers'
 
 By TuxMan20
 
-
 Forks are welcomed
 
 - TODO: Various bug fixes, adjustments

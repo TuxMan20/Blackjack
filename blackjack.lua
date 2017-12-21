@@ -378,7 +378,7 @@ function main()
   |     |___ ___ ___   | __  | |___ ___| |_  |_|___ ___| |_
   |  |  | . | -_|   |  | __ -| | .'|  _| '_| | | .'|  _| '_|
   |_____|  _|___|_|_|  |_____|_|__,|___|_,_|_| |__,|___|_,_|
-        |_|                                |___|            ]] .."\n")
+        |_|                                |___|             v.1.0]] .."\n")
 
   sleep(1)
 
@@ -393,29 +393,36 @@ function main()
 
   sleep(1)
 
+  local nbChoices = 3
   io.write("\n" .. [[Please choose an option:
   (1) New Game
   (2) Add Credits
-  (3) Quit]] .. "\n\n")
+  (3) Quit]] .. "\n")
+  if user.debt > 0 then
+    io.write("  (4) Repay debt\n")
+    nbChoices = 4
+  end
+  io.write("\n")
 
   repeat
     io.write("Command: ")
     user.choice = tonumber(io.read("*line"))
-  until user.choice > 0 and user.choice <= 3
+  until user.choice > 0 and user.choice <= nbChoices
 
   if user.choice == 1 then
     game()
 
   elseif user.choice == 2 then
+    local userBuy = 0
     io.write("How much do you need to buy? (Maximum 10,000$)\n")
     io.write("Remember you will have to repay your debts...\n")
     repeat
       io.write("Amount: ")
-      user.debt = tonumber(io.read("*line"))
-    until user.debt > 0 and user.debt <= 10000
+      userBuy = tonumber(io.read("*line"))
+    until userBuy > 0 and userBuy <= 10000
 
-    user.debt = math.floor(user.debt)
-    user.money = user.money + user.debt
+    user.debt = user.debt + math.floor(userBuy)
+    user.money = user.money + math.floor(userBuy)
     main()
 
   elseif user.choice == 3 then
@@ -430,7 +437,22 @@ function main()
     else
       main()
     end
+
+  elseif user.choice == 4 then
+    local userRepay = 0
+    io.write("How much debt will you repay?\n")
+    repeat
+      io.write("Amount: ")
+      userRepay = tonumber(io.read("*line"))
+    until userRepay >= 0 and userRepay <= user.debt
+    user.debt = user.debt - math.floor(userRepay)
+    user.money = user.money - math.floor(userRepay)
+    io.write("You just gave back " .. userRepay .. " of debt, so you now have " .. user.debt .. " remaining.")
+    sleep(1)
+    clear()
+    main()
   end
+
 end
 
 user = Player:new({hand = {{}, {}, {}, {}}}) -- Instantiates the user and dealer objects
