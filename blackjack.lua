@@ -49,7 +49,7 @@ function bet()
   repeat
     io.write("Amount: ")
     user.bet[1] = tonumber(io.read("*line"))
-  until user.bet[1] >= 0 and user.bet[1] <= user.money
+  until type(user.bet[1]) == "number" and user.bet[1] >= 0 and user.bet[1] <= user.money
 
   if user.bet[1] == 0 then
     main()
@@ -110,7 +110,7 @@ function playerTurn()
             io.write("[y/n]: ")
             user.choice = 0
             user.choice = io.read("*line")
-          until user.choice == 'Y' or user.choice == 'y' or user.choice == 'n' or user.choice == 'N'
+          until type(user.choice) == "string" and user.choice == 'Y' or user.choice == 'y' or user.choice == 'n' or user.choice == 'N'
           if user.choice == 'Y' or user.choice == 'y' and count_hand(user.hand[user.curHand]) == 21 then -- Taking even money on a Blackjack
             skipDealerTurn = true
             showDealerCards = true
@@ -187,7 +187,7 @@ repeat
           user.choice = 0
           io.write("Command: ")
           user.choice = tonumber(io.read("*line"))
-        until user.choice > 0 and user.choice <= 5 and user.choice ~= nil
+        until type(user.choice) == "number" and user.choice > 0 and user.choice <= 5
 
         -- Choice #1: Hit and draw a card, checks for going over 21
         if user.choice == 1 then
@@ -271,7 +271,7 @@ repeat
             io.write("[y/n]: ")
             user.choice = 0
             user.choice = io.read("*line")
-          until user.choice == 'Y' or user.choice == 'y' or user.choice == 'n' or user.choice == 'N'
+          until type(user.choice) == "string" and user.choice == 'Y' or user.choice == 'y' or user.choice == 'n' or user.choice == 'N'
           if user.choice == 'Y' or user.choice == 'y' then
             main()
           else
@@ -407,7 +407,7 @@ function main()
   repeat
     io.write("Command: ")
     user.choice = tonumber(io.read("*line"))
-  until user.choice > 0 and user.choice <= nbChoices
+  until type(user.choice) == "number" and user.choice > 0 and user.choice <= nbChoices
 
   if user.choice == 1 then
     game()
@@ -419,7 +419,7 @@ function main()
     repeat
       io.write("Amount: ")
       userBuy = tonumber(io.read("*line"))
-    until userBuy > 0 and userBuy <= 10000
+    until type(userBuy) == "number" and userBuy > 0 and userBuy <= 10000
 
     user.debt = user.debt + math.floor(userBuy)
     user.money = user.money + math.floor(userBuy)
@@ -433,6 +433,7 @@ function main()
       user.choice = io.read("*line")
     until user.choice == 'Y' or user.choice == 'y' or user.choice == 'n' or user.choice == 'N'
     if user.choice == 'Y' or user.choice == 'y' then
+      clear()
       os.exit()
     else
       main()
@@ -444,12 +445,11 @@ function main()
     repeat
       io.write("Amount: ")
       userRepay = tonumber(io.read("*line"))
-    until userRepay >= 0 and userRepay <= user.debt
+    until type(userRepay) == "number" and userRepay >= 0 and userRepay <= user.debt and userRepay <= user.money
     user.debt = user.debt - math.floor(userRepay)
     user.money = user.money - math.floor(userRepay)
     io.write("You just gave back " .. userRepay .. " of debt, so you now have " .. user.debt .. " remaining.")
     sleep(1)
-    clear()
     main()
   end
 
