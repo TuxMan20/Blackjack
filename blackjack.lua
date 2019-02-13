@@ -12,8 +12,8 @@ local Players = require("players")
 math.randomseed(os.time())
 
 
--------------- main loop of the game --------------------
-function game ()
+--  Main loop of the game --
+function game()
   while true do
 
     bet()
@@ -28,15 +28,17 @@ function game ()
 
   end
 end
-------------------------------------------------------------
+--                        
 
 -- Asks the user to place a bet
 function bet()
-  user.curHand = 1 -- Resets the current hand used if the user had Split
-
+  
+  -- Resets the current hand used if the user had Split and resets all bets to 0
+  user.curHand = 1 
   user.bet = {0, 0, 0, 0}
 
-  if user.money < 1 then -- If user has 0.50 left, he cannot play it, so the game ends
+  -- If user has 0.50 left, he cannot play it, so the game ends
+  if user.money < 1 then 
     clear()
     io.write("You are out of money. Thank you for playing. You may now leave the casino...\n")
     sleep(5)
@@ -62,6 +64,7 @@ end
 
 -- Deals the first two cards to dealer and player
 function newDeal()
+  
 -- Clears the screen and instantiate a new deck to draw from
 -- Resets all the flags to default
   user.blackjack = false
@@ -75,6 +78,7 @@ function newDeal()
 
   drawFrom = table.clone(newDeck)
 
+  -- Dealing the first cards
   for i = 1, 2 do
     user:hit(drawFrom)
   end
@@ -91,7 +95,6 @@ end
 
 -- Start of the Player's turn
 function playerTurn()
-  --while user.curHand <= user.split do
 
     while true do
 
@@ -103,6 +106,7 @@ function playerTurn()
           dealer.blackjack = true
           redrawTable()
           break
+        
         -- Checks for a dealer Blackjack if he shows an Ace. Asks for insurance.
       elseif checkAce(dealer.hand[1][1]) == 11 and #user.hand[1] == 2 then
           io.write("Dealer has an Ace up. Do you want to take insurance?\n")
@@ -160,7 +164,8 @@ function playerTurn()
         sleep(3)
         break
       end
------- Main player's Loop considering player's hands and Split -------
+    
+-- Main player's Loop considering player's hands and Split
 repeat
       if #user.hand[user.curHand] < 2 then
         user:hit(drawFrom)
@@ -308,8 +313,8 @@ end
 
 -- Evaluates the player's and dealer's cards, Returns a numeric value and a winner
 -- Contains the win/loss conditions for every scenarios
---(I made the win() function to also give back the bet, which explains the win(2).
--- User gets back his bet + his winnings, hence, 2 times his bet.)
+-- I made the win() function to also give back the bet, which explains the user:win(Int, i).
+-- User gets back his bet + his winnings, hence, 2 times his bet or 2.5 for a blackjack.
 function compare()
 
 local curHand = 0
@@ -320,6 +325,7 @@ for i = 1, user.split do
   if user.split > 1 then
     io.write("Hand " .. curHand .. ": ")
   end
+    
     -- Dealer busts. User wins 1x on each hand lower than 22
     if count_hand(dealer.hand[1]) > 21 then
       io.write("Dealer busts! You win " .. user.bet[curHand] .. " credits!\n")
@@ -366,9 +372,9 @@ for i = 1, user.split do
   end
 end
 
----------------------------------------------------
--- Start of main program, and displays main menu --
----------------------------------------------------
+
+-- Start of main program, and displays main menu
+--TODO: Refactor main() to mainMenu() to clear confusion
 function main()
 
   clear()
@@ -455,12 +461,16 @@ function main()
 
 end
 
-user = Player:new({hand = {{}, {}, {}, {}}}) -- Instantiates the user and dealer objects
+-- True start of the program: first lines of code executed.
+
+-- Instantiates the user and dealer objects
+user = Player:new({hand = {{}, {}, {}, {}}}) 
 dealer = Player:new({hand = {{}}})
 
 user.name = "Player"
 dealer.name = "Dealer"
 
-user.money = 1000 -- Sets the player starting money
+-- Sets the player starting money
+user.money = 1000 
 
 main()
